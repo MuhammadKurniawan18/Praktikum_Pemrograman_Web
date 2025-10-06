@@ -2,6 +2,8 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: login.php");
+
+// Redirect ke login dengan pesan via query string ($_GET)
+header("Location: login.php?status=logout");
 exit;
 ?>

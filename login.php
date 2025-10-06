@@ -8,11 +8,18 @@ if (isset($_SESSION['username'])) {
 }
 
 $error = '';
+$status = $_GET['status'] ?? ''; // Tangkap query string dari URL
+
+// Tampilkan pesan jika logout berhasil
+if ($status === 'logout') {
+  $error = "Anda telah berhasil logout!";
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
   $username = $_POST['username'] ?? '';
   $password = $_POST['password'] ?? '';
 
+  // Autentikasi sederhana
   if ($username === "admin" && $password === "12345") {
     $_SESSION['username'] = $username;
     header("Location: dashboard.php");
@@ -29,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <title>Login - Sistem Informasi Jadwal Mata Kuliah</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Tambahan sedikit untuk memusatkan form login */
     .login-container {
       display: flex;
       flex-direction: column;
@@ -72,14 +78,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-weight: bold;
     }
 
-    .footer {
-      margin-top: 50px;
+    .success-message {
+      color: green;
+      margin-bottom: 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header seperti dashboard -->
   <header class="header">
     <h1 class="site-title">Sistem Informasi Jadwal Mata Kuliah</h1>
     <p class="subtitle">Silakan login untuk melanjutkan</p>
@@ -90,20 +97,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <h2>Login</h2>
 
       <?php if ($error): ?>
-        <p class="error-message"><?php echo $error; ?></p>
+        <p class="<?php echo ($status === 'logout') ? 'success-message' : 'error-message'; ?>">
+          <?php echo $error; ?>
+        </p>
       <?php endif; ?>
 
       <form method="POST" action="">
         <input type="text" name="username" placeholder="Username" required><br>
         <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit" class="btn btn-primary">Masuk</button>
-      </form>
-    </div>
-  </main>
-
-  <footer class="footer">
-    <p>&copy; 2025 Sistem Informasi Jadwal Mata Kuliah</p>
-  </footer>
-
-</body>
-</html>
+        <button type="submit" class="btn btn-primary">Masuk<
