@@ -1,11 +1,15 @@
 <?php
 session_start();
+require 'test_koneksi.php';
 
-// Jika belum login, arahkan ke login.php
+// Jika belum login
 if (!isset($_SESSION['username'])) {
   header("Location: login.php?status=belum_login");
   exit;
 }
+
+// Ambil data jadwal dari DB
+$result = mysqli_query($koneksi, "SELECT * FROM mata_kuliah ORDER BY id ASC");
 ?>
 
 <!DOCTYPE html>
@@ -19,17 +23,12 @@ if (!isset($_SESSION['username'])) {
 <body>
   <header class="header">
     <h1 class="site-title">Sistem Informasi Jadwal Mata Kuliah</h1>
-    <p class="subtitle">
-      Halo, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>! Selamat datang di dashboard 🎓
-    </p>
-
+    <p class="subtitle">Halo, <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>! Selamat datang 🎓</p>
     <nav class="navbar">
       <ul class="nav-list">
-        <li><a href="#overview" class="nav-link">Overview</a></li>
-        <li><a href="#mata-kuliah" class="nav-link">Mata Kuliah</a></li>
-        <li><a href="#jadwal" class="nav-link">Jadwal</a></li>
-        <li><a href="#kontak" class="nav-link">Kontak</a></li>
-        <li><a href="logout.php" class="nav-link" style="color: yellow;">Logout</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#jadwal">Jadwal</a></li>
+        <li><a href="logout.php" style="color:yellow;">Logout</a></li>
       </ul>
     </nav>
   </header>
@@ -37,26 +36,14 @@ if (!isset($_SESSION['username'])) {
   <main class="container">
     <section id="overview" class="card">
       <h2>Overview</h2>
-      <p>Sistem ini membantu mahasiswa untuk melihat jadwal kuliah mingguan dengan mudah dan responsif.</p>
+      <p>Sistem ini membantu mahasiswa untuk melihat dan mengelola jadwal kuliah mingguan.</p>
       <button id="toggleOverview" class="btn btn-primary">Sembunyikan Overview</button>
     </section>
 
-    <section id="mata-kuliah" class="card">
-      <h2>Daftar Mata Kuliah</h2>
-      <ul class="grid" id="mataKuliahList">
-        <li class="card card-featured">Pemrograman Web</li>
-        <li class="card card-featured">Basis Data</li>
-        <li class="card card-featured">Struktur Data</li>
-        <li class="card card-featured">Organisasi dan Arsitektur Komputer</li>
-        <li class="card card-featured">Aljabar Linier</li>
-      </ul>
-      <input type="text" id="newCourse" placeholder="Tambah mata kuliah baru...">
-      <button id="addCourse" class="btn btn-primary">Tambah</button>
-    </section>
-
     <section id="jadwal" class="card">
-      <h2>Jadwal</h2>
-      <table class="schedule-table" id="scheduleTable">
+      <h2>Jadwal Kuliah</h2>
+      <a href="tambah.php" class="btn btn-primary">+ Tambah Jadwal</a>
+      <table class="schedule-table">
         <thead>
           <tr>
             <th>Hari</th>
@@ -64,56 +51,25 @@ if (!isset($_SESSION['username'])) {
             <th>Mata Kuliah</th>
             <th>Dosen</th>
             <th>Ruang</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
+          <?php while ($row = mysqli_fetch_assoc($result)): ?>
           <tr>
-            <td>Senin</td>
-            <td>09:10 - 10:40</td>
-            <td>Pemrograman Web</td>
-            <td>Muhammad Fizriannur, S.Kom., M.Kom</td>
-            <td>R.101</td>
+            <td><?= htmlspecialchars($row['hari']) ?></td>
+            <td><?= htmlspecialchars($row['waktu']) ?></td>
+            <td><?= htmlspecialchars($row['nama_mk']) ?></td>
+            <td><?= htmlspecialchars($row['dosen']) ?></td>
+            <td><?= htmlspecialchars($row['ruang']) ?></td>
+            <td>
+              <a href="edit.php?id=<?= $row['id'] ?>" class="btn">Edit</a>
+              <a href="hapus.php?id=<?= $row['id'] ?>" class="btn" onclick="return confirm('Yakin hapus data?')">Hapus</a>
+            </td>
           </tr>
-          <tr>
-            <td>Selasa</td>
-            <td>09:10 - 10:40</td>
-            <td>Basis Data</td>
-            <td>Muhammad Riduan, S.Kom., M.Kom</td>
-            <td>R.202</td>
-          </tr>
-          <tr>
-            <td>Rabu</td>
-            <td>09:10 - 10:40</td>
-            <td>Struktur Data</td>
-            <td>Muhammad Ikhsan, S.Kom., M. Kom</td>
-            <td>R.103</td>
-          </tr>
-          <tr>
-            <td>Kamis</td>
-            <td>09:10 - 10:40</td>
-            <td>Organisasi dan Arsitektur Komputer</td>
-            <td>Muhammad Kurniawan, S.Kom., M.Kom., Ph.D., ASEAN Eng</td>
-            <td>R.306</td>
-          </tr>
-          <tr>
-            <td>Jumat</td>
-            <td>09:10 - 10:40</td>
-            <td>Aljabar Linier</td>
-            <td>Muhammad Faras, S.Kom., M.Kom</td>
-            <td>R.307</td>
-          </tr>
+          <?php endwhile; ?>
         </tbody>
       </table>
-      <button id="highlightBtn" class="btn btn-primary">Highlight Jadwal Hari Ini</button>
-    </section>
-
-    <section id="kontak" class="card">
-      <h2>Kontak</h2>
-      <address>
-        Tim Pengembang<br>
-        Email: muhkurniawan002@gmail.com<br>
-        <a href="mailto:muhkurniawan002@gmail.com" class="btn btn-primary">Hubungi Kami</a>
-      </address>
     </section>
   </main>
 
